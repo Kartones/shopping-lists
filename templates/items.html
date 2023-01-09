@@ -70,7 +70,11 @@
       }
 
       function addNewItemToList() {
-        const newItemName = document.getElementById("newItemName").value.trim().toLowerCase();
+        const newItemName = document.getElementById("newItemName")
+                                    .value
+                                    .trim()
+                                    .toLowerCase()
+                                    .replace("{{separator}}", "");
         if (newItemName.length > 0 && !itemExists(newItemName)) {
           document.getElementById("items-buttons").insertAdjacentHTML(
             "beforeend",
