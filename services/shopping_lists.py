@@ -17,8 +17,7 @@ class ShoppingLists():
 
     def get_items(self, list_name):
         file_path = os.path.join(".", self.config.LISTS_FOLDER, "{}.txt".format(self._clean_list_name(list_name)))
-        items = self._load_list_items_from_file(file_path)
-        return self._get_items_data(items)
+        return self._load_list_items_from_file(file_path)
 
     def save_list_item_action(self, list_name, item_name, action):
         file_path = os.path.join(".", self.config.LISTS_FOLDER, "{}.txt".format(self._clean_list_name(list_name)))
@@ -59,28 +58,6 @@ class ShoppingLists():
             items = {line.split(separator)[0]: line.split(separator)[1].replace("\n", "") for line in file}
         return items
 
-    @classmethod
-    def _get_items_data(cls, items_dict):
-        data = []
-        for item_name in sorted(items_dict.keys()):
-            fragments = [item_name, items_dict[item_name]]
-            fragments.append(cls._css_class_for_item(items_dict[item_name]))
-            data.append(fragments)
-        return data
-
     @staticmethod
     def _clean_list_name(list_name):
         return re.sub(r"[\/\\\.]", "", list_name)
-
-    # TODO: Should go on a decorator outside of the service
-    @staticmethod
-    def _css_class_for_item(item_status):
-        css_class = ""
-        if item_status == "0":
-            css_class = "btn-default"
-        elif item_status == "1":
-            css_class = "btn-warning"
-        elif item_status == "2":
-            css_class = "btn-danger"
-
-        return css_class

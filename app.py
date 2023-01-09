@@ -6,6 +6,7 @@ from flask import Flask, request, redirect, render_template, make_response
 
 import config
 from services.shopping_lists import ShoppingLists
+from decorators.css_class import CSSClassDecorator
 
 app = Flask(__name__)
 
@@ -45,7 +46,7 @@ def list_items(list_name):
         shopping_lists.save_list_item_action(list_name, item_name, action)
         return "", 204
     else:
-        items = shopping_lists.get_items(list_name)
+        items = CSSClassDecorator.decorate_items(shopping_lists.get_items(list_name))
         order_by = request.args.get("order_by")
         if order_by == "state":
             items = sorted(items, key=item_sort_function, reverse=True)
