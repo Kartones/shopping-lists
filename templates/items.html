@@ -58,6 +58,14 @@
           body: encodeURIComponent(`${action}{{separator}}${itemName}`),
           method: "POST",
           headers: {"Content-type": "application/x-www-form-urlencoded; charset=UTF-8"}
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw (new Error(`${response.status} ${response.statusText}`));
+          }
+        })
+        .catch(error => {
+          alert(`Error occurred, action might not have been not saved, please reload.\n${error}`);
         });
       }
 
