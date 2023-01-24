@@ -7,6 +7,8 @@ BASE_URL_PATH = "/"
 
 # recommended to change to something else
 LISTS_FOLDER = "data"
+# recommended to change, but not a big deal if left as it is
+EVENTS_FILENAME = "events.log"
 # change for production
 PASS = "a_fancy_password"
 # change for production
