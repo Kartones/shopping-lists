@@ -4,6 +4,8 @@
 import os
 import re
 
+from services.event_logger import EventLogger
+
 
 class ShoppingLists():
 
@@ -34,6 +36,8 @@ class ShoppingLists():
                 del items[item_name]
 
         self._save_list(list_name, items)
+
+        EventLogger.log(list_name, item_name, action)
 
     def _save_list(self, list_name, list_items):
         separator = self.config.SEPARATOR
