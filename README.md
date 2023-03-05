@@ -3,7 +3,7 @@ Shopping Lists
 
 A small web application to manage shopping lists. 
 
-Very simple, file-based, designed to be mobile-first, although easy to use also from a computer.
+Very simple and file-based. Designed to be mobile-first, although easy to use also from a computer.
 
 ![Screenshots](doc/screenshot.jpg)
 
