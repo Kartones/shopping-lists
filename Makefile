@@ -6,7 +6,7 @@ export SERVICE_NAME := shopping-lists
 SHELL := $(shell which bash)
 
 DOCKER := $(shell command -v docker)
-COMPOSE := $(shell command -v docker-compose)
+COMPOSE := $(shell command -v docker) compose
 
 COMPOSE_ENV := $(COMPOSE) -f build/docker-compose.yml
 COMPOSE_CMD := $(COMPOSE_ENV) run --rm $(SERVICE_NAME)
