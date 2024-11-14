@@ -26,8 +26,16 @@
       </div>
       <div id="items-buttons">
         {% for item in items %}
-            <button type="button" class="item btn {{ item[2] }}" data-state="{{ item[1] }}"
-                data-key="{{ item[0] }}">{{ item[0] }}</button>
+          <button
+            type="button"
+            class="item btn {{ item[2] }}"
+            data-state="{{ item[1] }}"
+            data-key="{{ item[0] }}"
+          >
+            {% if item[0].startswith('http') %}
+              <a href="{{ item[0] }}" target="_blank">{{ item[0] }}</a>
+            {% else %} {{ item[0] }} {% endif %}
+          </button>
         {% endfor %}
       </div>
     </div>

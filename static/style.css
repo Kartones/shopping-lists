@@ -23,6 +23,18 @@ margin-top: 6px;
   border: 1px solid #17a2b8;
 }
 
+.btn-warning a {
+  color: #000;
+}
+
+.btn-danger a {
+  color: #fff;
+}
+
+.btn-dark a {
+  color: #fff;
+}
+
 .form-control {
   width: auto;
 }
