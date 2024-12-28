@@ -48,6 +48,12 @@
     </footer>
 
     <script type="text/javascript">
+      function copyToClipboard(text) {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text);
+        }
+      }
+
       function toggleItem(e) {
         const states = ["btn-default", "btn-warning", "btn-danger", "btn-dark"];
         const actions = ["c", "h", "d", "u"];
@@ -57,6 +63,8 @@
         e.target.classList.add(states[newState]);
         e.target.classList.remove(states[state]);
         e.target.dataset.state = newState;
+
+        copyToClipboard(e.target.textContent.trim());
 
         saveItemAction(e.target.dataset.key, actions[state]);
       };
