@@ -20,3 +20,7 @@ COOKIE_PASS = "some_cookie_paswword_which_really_is_just_a_value"
 DEBUG = True
 # set to None for production
 HOST_IP = "0.0.0.0"
+
+
+# valid values: "top", "bottom"
+NEW_ITEM_LOCATION = "bottom"

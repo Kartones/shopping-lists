@@ -46,6 +46,7 @@ def list_items(list_name):
         shopping_lists.save_list_item_action(list_name, item_name, action)
         return "", 204
     else:
+        new_item_located_at_top = config.NEW_ITEM_LOCATION == "top"
         items = CSSClassDecorator.decorate_items(shopping_lists.get_items(list_name))
         order_by = request.args.get("order_by")
         if order_by == "state":
@@ -55,7 +56,8 @@ def list_items(list_name):
             "items.html",
             list_name=list_name, items=items,
             base_url_path=config.BASE_URL_PATH,
-            separator=config.SEPARATOR
+            separator=config.SEPARATOR,
+            new_item_located_at_top=new_item_located_at_top,
         )
 
 

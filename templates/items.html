@@ -24,6 +24,12 @@
       <div class="bg-light" style="padding: 6px">
         <a href="?">⬇️ Name</a> <a href="?order_by=state">⬇️ Priority</a>
       </div>
+      {% if new_item_located_at_top %}
+      <div class="bg-light" class="container">
+          <input id="newItemName" type="text" placeholder="New item..." />
+          <button id="addNewItemButton" type="button" class="btn btn-default"><strong>+</strong></button>
+      </div>
+      {% endif %}
       <div id="items-buttons">
         {% for item in items %}
           <button
@@ -40,12 +46,14 @@
       </div>
     </div>
 
+    {% if not new_item_located_at_top %}
     <footer class="footer">
       <div class="container">
           <input id="newItemName" type="text" placeholder="New item..." />
           <button id="addNewItemButton" type="button" class="btn btn-default"><strong>+</strong></button>
       </div>
     </footer>
+    {% endif %}
 
     <script type="text/javascript">
       function copyToClipboard(text) {
