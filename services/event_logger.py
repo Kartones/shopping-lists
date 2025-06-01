@@ -9,6 +9,10 @@ class EventLogger():
 
     @staticmethod
     def log(list_name, item_name, action):
+        # Only log events if enabled in config
+        if not config.LOG_EVENTS:
+            return
+
         timestamp = int(datetime.timestamp(datetime.now()))
 
         file_path = os.path.join(".", config.LISTS_FOLDER, config.EVENTS_FILENAME)
