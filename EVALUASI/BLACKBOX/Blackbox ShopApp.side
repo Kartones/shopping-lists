@@ -1,0 +1,109 @@
+{
+  "id": "4f2e528e-e452-4f54-9e8e-5972910b1788",
+  "version": "2.0",
+  "name": "Blackbox ShopApp",
+  "url": "https://redesigned-xylophone-5gq96pwg5rv62p767-5000.app.github.dev",
+  "tests": [{
+    "id": "d4ae807a-0ea6-4464-a812-f32ae99c279b",
+    "name": "UAS SHAFWAN",
+    "commands": [{
+      "id": "11922fb1-6e60-4460-bcc0-7b786394d2a3",
+      "comment": "",
+      "command": "open",
+      "target": "/login",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "302c0208-d01c-4e72-99a7-1e771fa60f45",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "550x692",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "cfa1f300-2263-4a51-9f09-e07a0b113898",
+      "comment": "",
+      "command": "click",
+      "target": "name=username",
+      "targets": [
+        ["name=username", "name"],
+        ["css=.form-group:nth-child(1) > .form-control", "css:finder"],
+        ["xpath=//input[@name='username']", "xpath:attributes"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "0c290133-a1f5-47db-8cb6-417f226af251",
+      "comment": "",
+      "command": "type",
+      "target": "name=username",
+      "targets": [
+        ["name=username", "name"],
+        ["css=.form-group:nth-child(1) > .form-control", "css:finder"],
+        ["xpath=//input[@name='username']", "xpath:attributes"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "admin"
+    }, {
+      "id": "a9567aef-947c-429d-997f-98f3db4839fb",
+      "comment": "",
+      "command": "click",
+      "target": "name=password",
+      "targets": [
+        ["name=password", "name"],
+        ["css=.form-group:nth-child(2) > .form-control", "css:finder"],
+        ["xpath=//input[@name='password']", "xpath:attributes"],
+        ["xpath=//div[2]/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "378c0e41-edf5-4887-b818-ae645443dfbe",
+      "comment": "",
+      "command": "type",
+      "target": "name=password",
+      "targets": [
+        ["name=password", "name"],
+        ["css=.form-group:nth-child(2) > .form-control", "css:finder"],
+        ["xpath=//input[@name='password']", "xpath:attributes"],
+        ["xpath=//div[2]/input", "xpath:position"]
+      ],
+      "value": "admin123"
+    }, {
+      "id": "fca53c25-bca9-4a67-b339-54aa4240ddbf",
+      "comment": "",
+      "command": "click",
+      "target": "css=.btn",
+      "targets": [
+        ["css=.btn", "css:finder"],
+        ["xpath=//button[@type='submit']", "xpath:attributes"],
+        ["xpath=//button", "xpath:position"],
+        ["xpath=//button[contains(.,'Login')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "4fbec844-b424-49e7-aedc-cac84bb9bf45",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Logout",
+      "targets": [
+        ["linkText=Logout", "linkText"],
+        ["css=.btn", "css:finder"],
+        ["xpath=//a[contains(text(),'Logout')]", "xpath:link"],
+        ["xpath=//a[contains(@href, '/logout')]", "xpath:href"],
+        ["xpath=//a", "xpath:position"],
+        ["xpath=//a[contains(.,'Logout')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "f3f402e9-10f3-4854-95e9-4af842f7f794",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["d4ae807a-0ea6-4464-a812-f32ae99c279b"]
+  }],
+  "urls": ["https://redesigned-xylophone-5gq96pwg5rv62p767-5000.app.github.dev/"],
+  "plugins": []
+}
