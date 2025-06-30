@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shopping Lists</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Welcome, {{ session['username'] }}</h1>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+        <hr>
+        <p>Daftar belanja akan ditampilkan di sini.</p>
+    </div>
+</body>
+</html>
