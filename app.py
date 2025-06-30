@@ -9,6 +9,8 @@ from services.shopping_lists import ShoppingLists
 from decorators.css_class import CSSClassDecorator
 
 app = Flask(__name__)
+# app.py
+# TODO: Tambahkan fitur logout setelah timeout otomatis
 
 
 def item_sort_function(item):

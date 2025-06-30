@@ -1,0 +1,22 @@
+@startuml
+actor User
+participant "login.html" as HTML
+participant "Flask Route /login" as Flask
+participant "User model" as UserModel
+participant "session"
+
+User -> HTML : isi username & password
+HTML -> Flask : POST /login
+Flask -> UserModel : user_in_db(username)
+alt user ditemukan
+  Flask -> UserModel : user_password(username)
+  alt password benar
+    Flask -> session : set username
+    Flask -> User : redirect ke index
+  else password salah
+    Flask -> HTML : tampilkan error "Bad Password"
+  end
+else user tidak ditemukan
+  Flask -> HTML : tampilkan error "User Not Found"
+end
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+' ==========================
+'        ENTITY CLASSES
+' ==========================
+class User {
+  +id: Integer
+  +username: String
+  +password: String
+  +email: String
+}
+
+class imagePost {
+  +id: Integer
+  +image: Binary
+  +filename: String
+  +extension: String
+  +username: String
+  +links: String
+  +category: String
+}
+
+User "1" -- "many" imagePost : uploads
+
+' ==========================
+'        SERVICES
+' ==========================
+package "services" {
+  class shopping_lists.py {
+    +get_all_items()
+    +parse_filename()
+    +user_in_db()
+    +user_password()
+    +check_legit_email()
+  }
+
+  class event_logger.py
+}
+
+package "decorators" {
+  class css_class.py
+}
+
+@enduml
+
+
+@enduml
