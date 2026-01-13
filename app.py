@@ -58,6 +58,7 @@ def list_items(list_name):
             base_url_path=config.BASE_URL_PATH,
             separator=config.SEPARATOR,
             new_item_located_at_top=new_item_located_at_top,
+            multi_line_mode=config.MULTI_LINE_MODE,
         )
 
 

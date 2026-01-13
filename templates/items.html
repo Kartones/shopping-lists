@@ -26,8 +26,12 @@
       </div>
       {% if new_item_located_at_top %}
       <div class="bg-light" class="container">
+          {% if multi_line_mode %}
+          <textarea id="newItemName" rows="3" placeholder="New item..."></textarea>
+          {% else %}
           <input id="newItemName" type="text" placeholder="New item..." />
-          <button id="addNewItemButton" type="button" class="btn btn-default"><strong>+</strong></button>
+          {% endif %}
+          <button id="addNewItemButton" type="button" class="btn btn-default" {% if multi_line_mode %}style="vertical-align: top;"{% endif %}><strong>+</strong></button>
       </div>
       {% endif %}
       <div id="items-buttons">
@@ -37,10 +41,11 @@
             class="item btn {{ item[2] }}"
             data-state="{{ item[1] }}"
             data-key="{{ item[0] }}"
+            {% if multi_line_mode %}style="text-align: left;"{% endif %}
           >
             {% if item[0].startswith('http') %}
-              <a href="{{ item[0] }}" target="_blank">{{ item[0] }}</a>
-            {% else %} {{ item[0] }} {% endif %}
+              <a href="{{ item[0] }}" target="_blank">{{ item[0] | safe }}</a>
+            {% else %} {{ item[0] | safe }} {% endif %}
           </button>
         {% endfor %}
       </div>
@@ -49,13 +54,36 @@
     {% if not new_item_located_at_top %}
     <footer class="footer">
       <div class="container">
+          {% if multi_line_mode %}
+          <textarea id="newItemName" rows="3" placeholder="New item..."></textarea>
+          {% else %}
           <input id="newItemName" type="text" placeholder="New item..." />
-          <button id="addNewItemButton" type="button" class="btn btn-default"><strong>+</strong></button>
+          {% endif %}
+          <button id="addNewItemButton" type="button" class="btn btn-default" {% if multi_line_mode %}style="vertical-align: top;"{% endif %}><strong>+</strong></button>
       </div>
     </footer>
     {% endif %}
 
     <script type="text/javascript">
+      const multiline_mode = {{ 'true' if multi_line_mode else 'false' }};
+      const separator = "{{ separator }}";
+
+      function htmlEncode(str) {
+        return str.replace(/[&<>"'|]/g, function(match) {
+          return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '|': '&#124;'
+          }[match] || match;
+        });
+      }
+
+      const encodedSeparator = htmlEncode(separator);
+      console.log("Encoded separator:", encodedSeparator, "Original separator:", separator);
+
       function copyToClipboard(text) {
         if (navigator.clipboard) {
           navigator.clipboard.writeText(text);
@@ -78,8 +106,12 @@
       };
 
       function saveItemAction(itemName, action) {
+        // Replace all occurrences of separator with encoded version
+        const escapedSeparator = separator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const encodedItemName = itemName.replace(new RegExp(escapedSeparator, 'g'), encodedSeparator);
+
         fetch(`{{ base_url_path }}items/${encodeURIComponent("{{ list_name }}")}`, {
-          body: encodeURIComponent(`${action}{{separator}}${itemName}`),
+          body: encodeURIComponent(`${action}${separator}${encodedItemName}`),
           method: "POST",
           headers: {"Content-type": "application/x-www-form-urlencoded; charset=UTF-8"}
         })
@@ -94,15 +126,20 @@
       }
 
       function addNewItemToList() {
-        const newItemName = document.getElementById("newItemName")
+        let newItemName = document.getElementById("newItemName")
                                     .value
                                     .trim()
                                     .toLowerCase()
-                                    .replace("{{separator}}", "");
+                                    ;
+        if (multiline_mode) {
+          newItemName = newItemName.replace(/\n/g, '<br>');
+        }
+
         if (newItemName.length > 0 && !itemExists(newItemName)) {
+          const styleAttr = multiline_mode ? ' style="text-align: left;"' : '';
           document.getElementById("items-buttons").insertAdjacentHTML(
             "beforeend",
-            `<button type="button" class="item btn btn-warning" data-state="1" data-key="${newItemName}">${newItemName}</button>`
+            `<button type="button" class="item btn btn-warning" data-state="1" data-key="${newItemName}"${styleAttr}>${newItemName}</button>`
           );
 
           document.getElementById("newItemName").value = "";
@@ -112,7 +149,8 @@
       };
 
       function itemExists(itemName) {
-        return !!document.querySelector(`#items-buttons button[data-key="${itemName}"]`);
+        const buttons = Array.from(document.querySelectorAll('#items-buttons button'));
+        return buttons.some(button => button.dataset.key === itemName);
       }
 
       window.addEventListener('load', () => {
@@ -126,11 +164,13 @@
 
         document.getElementById("addNewItemButton").onclick = addNewItemToList;
 
-        document.getElementById("newItemName").addEventListener("keypress", (eventData) => {
+        if (!multiline_mode) {
+          document.getElementById("newItemName").addEventListener("keypress", (eventData) => {
           if (eventData.keyCode === 13) {
             addNewItemToList();
           }
         }, false);
+        }
       });
     </script>
 </body>

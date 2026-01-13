@@ -22,6 +22,12 @@ Very simple, file-based, designed to be mobile-first, although easy to use also 
 
 Status cycles: `Unchecked` -> `Checked` -> `Highlighted` -> `Deleted` -> (cycle restarts, `Unchecked` again)
 
+### Multi-Line Mode
+
+Set `MULTI_LINE_MODE = True` in `config.py` to enable multi-line item support:
+- Multi-line input (ENTER adds new lines instead of submitting)
+- Items display with left alignment and line breaks are preserved
+
 ## Development
 
 Just run `make run` and it will tell you the url to access the development version once the container is ready.
