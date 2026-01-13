@@ -7,9 +7,9 @@
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     {% if multi_line_mode %}
-    <script src="https://cdn.jsdelivr.net/npm/marked@14.1.3/marked.min.js"></script>
+    <script src="{{ url_for('static', filename='marked.min.js') }}"></script>
     {% endif %}
-    <title>Shopping List {{ list_name }}</title>
+    <title>Shopping List {{ unprefixed_name }}</title>
   </head>
 <body role="document">
 
@@ -23,7 +23,7 @@
   </ul>
 
     <div class="container" style="margin-top: 12px">
-        <h3>List: {{ list_name }}</h3>
+        <h3>List: {{ unprefixed_name }}</h3>
       <div class="bg-light" style="padding: 6px">
         <a href="?">⬇️ Name</a> <a href="?order_by=state">⬇️ Priority</a>
       </div>
@@ -86,9 +86,6 @@
         });
       }
 
-      const encodedSeparator = htmlEncode(separator);
-      console.log("Encoded separator:", encodedSeparator, "Original separator:", separator);
-
       function copyToClipboard(text) {
         if (navigator.clipboard) {
           navigator.clipboard.writeText(text);
@@ -111,14 +108,13 @@
           copyToClipboard(e.target.textContent.trim());
         }
 
-
         saveItemAction(e.target.dataset.key, actions[state]);
       };
 
       function saveItemAction(itemName, action) {
         // Replace all occurrences of separator with encoded version
         const escapedSeparator = separator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const encodedItemName = itemName.replace(new RegExp(escapedSeparator, 'g'), encodedSeparator);
+        const encodedItemName = itemName.replace(new RegExp(escapedSeparator, 'g'), htmlEncode(separator));
 
         fetch(`{{ base_url_path }}items/${encodeURIComponent("{{ list_name }}")}`, {
           body: encodeURIComponent(`${action}${separator}${encodedItemName}`),
@@ -140,14 +136,17 @@
         if (multiline_mode) {
           newItemName = newItemName.replace(/\n/g, '<br>');
         } else {
-          newItemName = newItemName.trim().toLowerCase
+          newItemName = newItemName.trim().toLowerCase();
         }
+        newItemName = newItemName.replace(/['"]/g, match => {
+          return match === "'" ? "&#39;" : "&quot;";
+        });
 
         if (newItemName.length > 0 && !itemExists(newItemName)) {
           const styleAttr = multiline_mode ? ' style="text-align: left;"' : '';
           const classAttr = multiline_mode ? ' markdown-content' : '';
           const dataRawAttr = multiline_mode ? ` data-raw="${newItemName}"` : '';
-          const displayContent = multiline_mode ? marked.parse(newItemName) : newItemName;
+          const displayContent = multiline_mode ? marked.parse(newItemName.replace(/<br\s*\/?>/gi, '\n')) : newItemName;
 
           document.getElementById("items-buttons").insertAdjacentHTML(
             "beforeend",
@@ -177,11 +176,19 @@
         document.getElementById("addNewItemButton").onclick = addNewItemToList;
 
         if (multiline_mode) {
-          // Parse markdown for all existing items
+          const renderer = {
+            link(href, title, text) {
+              const link = marked.Renderer.prototype.link.call(this, href, title, text);
+              return link.replace("<a","<a target='_blank' rel='noreferrer' ");
+            }
+          };
+          marked.use({
+              renderer
+          });
           document.querySelectorAll('.markdown-content').forEach(element => {
             const rawText = element.dataset.raw;
             if (rawText) {
-              element.innerHTML = marked.parse(rawText);
+              element.innerHTML = marked.parse(rawText.replace(/<br\s*\/?>/gi, '\n'));
             }
           });
         }

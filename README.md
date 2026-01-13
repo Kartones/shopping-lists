@@ -24,9 +24,12 @@ Status cycles: `Unchecked` -> `Checked` -> `Highlighted` -> `Deleted` -> (cycle 
 
 ### Multi-Line Mode
 
-Set `MULTI_LINE_MODE = True` in `config.py` to enable multi-line item support:
+Lists whose filename starts with the configured prefix (default: `multi-`) automatically enable multi-line mode:
 - Multi-line input (ENTER adds new lines instead of submitting)
-- Items display with left alignment and line breaks are preserved
+- Items display with left alignment
+- Markdown rendering for formatted content
+
+Example: Create a file named `multi-groceries.txt` to have a multi-line enabled grocery list.
 
 ## Development
 
