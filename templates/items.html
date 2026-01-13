@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% if multi_line_mode %}
+    <script src="https://cdn.jsdelivr.net/npm/marked@14.1.3/marked.min.js"></script>
+    {% endif %}
     <title>Shopping List {{ list_name }}</title>
   </head>
 <body role="document">
@@ -38,14 +41,16 @@
         {% for item in items %}
           <button
             type="button"
-            class="item btn {{ item[2] }}"
+            class="item btn {{ item[2] }} {% if multi_line_mode %}markdown-content{% endif %}"
             data-state="{{ item[1] }}"
             data-key="{{ item[0] }}"
-            {% if multi_line_mode %}style="text-align: left;"{% endif %}
+            {% if multi_line_mode %}style="text-align: left;" data-raw="{{ item[0] }}"{% endif %}
           >
-            {% if item[0].startswith('http') %}
-              <a href="{{ item[0] }}" target="_blank">{{ item[0] | safe }}</a>
-            {% else %} {{ item[0] | safe }} {% endif %}
+            {% if not multi_line_mode %}
+              {% if item[0].startswith('http') %}
+                <a href="{{ item[0] }}" target="_blank">{{ item[0] | safe }}</a>
+              {% else %} {{ item[0] | safe }} {% endif %}
+            {% endif %}
           </button>
         {% endfor %}
       </div>
@@ -100,7 +105,12 @@
         e.target.classList.remove(states[state]);
         e.target.dataset.state = newState;
 
-        copyToClipboard(e.target.textContent.trim());
+        if (multiline_mode) {
+          copyToClipboard(e.target.textContent);
+        } else {
+          copyToClipboard(e.target.textContent.trim());
+        }
+
 
         saveItemAction(e.target.dataset.key, actions[state]);
       };
@@ -126,20 +136,22 @@
       }
 
       function addNewItemToList() {
-        let newItemName = document.getElementById("newItemName")
-                                    .value
-                                    .trim()
-                                    .toLowerCase()
-                                    ;
+        let newItemName = document.getElementById("newItemName").value;
         if (multiline_mode) {
           newItemName = newItemName.replace(/\n/g, '<br>');
+        } else {
+          newItemName = newItemName.trim().toLowerCase
         }
 
         if (newItemName.length > 0 && !itemExists(newItemName)) {
           const styleAttr = multiline_mode ? ' style="text-align: left;"' : '';
+          const classAttr = multiline_mode ? ' markdown-content' : '';
+          const dataRawAttr = multiline_mode ? ` data-raw="${newItemName}"` : '';
+          const displayContent = multiline_mode ? marked.parse(newItemName) : newItemName;
+
           document.getElementById("items-buttons").insertAdjacentHTML(
             "beforeend",
-            `<button type="button" class="item btn btn-warning" data-state="1" data-key="${newItemName}"${styleAttr}>${newItemName}</button>`
+            `<button type="button" class="item btn btn-warning${classAttr}" data-state="1" data-key="${newItemName}"${styleAttr}${dataRawAttr}>${displayContent}</button>`
           );
 
           document.getElementById("newItemName").value = "";
@@ -163,6 +175,16 @@
         };
 
         document.getElementById("addNewItemButton").onclick = addNewItemToList;
+
+        if (multiline_mode) {
+          // Parse markdown for all existing items
+          document.querySelectorAll('.markdown-content').forEach(element => {
+            const rawText = element.dataset.raw;
+            if (rawText) {
+              element.innerHTML = marked.parse(rawText);
+            }
+          });
+        }
 
         if (!multiline_mode) {
           document.getElementById("newItemName").addEventListener("keypress", (eventData) => {
