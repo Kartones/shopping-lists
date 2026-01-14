@@ -38,3 +38,12 @@ margin-top: 6px;
 .form-control {
   width: auto;
 }
+
+.btn-multi-line {
+  border: 1px solid #198754;
+  color:#fff;background-color:#5182A6;border-color:#81A9C6;
+}
+
+.btn-multi-line:hover {
+  color: #fff;background-color:#3776A3;
+}

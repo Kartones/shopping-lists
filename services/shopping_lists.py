@@ -12,6 +12,14 @@ class ShoppingLists():
     def __init__(self, config):
         self.config = config
 
+    def is_multi_line_list(self, list_name):
+        return list_name.startswith(self.config.MULTI_LINE_MODE_PREFIX)
+
+    def unprefixed_list_name(self, list_name, is_multi_line):
+        if is_multi_line:
+            return list_name[len(self.config.MULTI_LINE_MODE_PREFIX):]
+        return list_name
+
     def get_all_lists(self):
         folder_path = os.path.join(".", self.config.LISTS_FOLDER)
         files = self._get_txt_files_from_directory(folder_path)

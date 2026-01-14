@@ -1,0 +1,13 @@
+a highly desired product|2
+another product|1
+a product|0
+a<br>b<br>c|1
+some thing<br>222|1
+test  2<br>2|1
+aaa|1
+bbb|1
+let's **see!!!**<br>what's this?<br>- a<br>- b<br>[uh?](https://kartones.net)<br>oh!|2
+a list?<br><br>- 1<br>- 2<br><br>ouhmm|1
+a<br>- 2<br>- 3|1
+4<br>- 4 spaces<br> - 5, no four|0
+something &quot;quoted&quot; &#39;aha&#39;!|1

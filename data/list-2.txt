@@ -1,3 +1,4 @@
 aa|1
 bbb|2
 ccc|0
+&quot;quotes&quot; here &#39;also&#39;!|1

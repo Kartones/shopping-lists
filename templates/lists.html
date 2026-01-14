@@ -27,8 +27,8 @@
 
     <div class="container" role="main" style="margin-top: 42px">
       <div id="list-buttons">
-        {% for list in lists %}
-            <button type="button" class="list btn btn-lg btn-primary" data-listname="{{ list }}">{{ list }}</button>&nbsp;
+        {% for list, is_multi_line, unprefixed_name in lists %}
+            <button type="button" class="list btn btn-lg {% if is_multi_line %}btn-multi-line{% else %}btn-primary{% endif %}" data-listname="{{ list }}" {% if is_multi_line %}title="Multi-line mode enabled"{% endif %}>{{ unprefixed_name }}</button>&nbsp;
         {% endfor %}
       </div>
     </div>

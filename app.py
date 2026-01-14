@@ -32,8 +32,16 @@ def authenticated(func):
 @app.route("/", methods=["GET"])
 @authenticated
 def lists():
-    lists = ShoppingLists(config).get_all_lists()
-    return render_template("lists.html", lists=lists, base_url_path=config.BASE_URL_PATH)
+    shopping_lists = ShoppingLists(config)
+    all_lists = shopping_lists.get_all_lists()
+    lists_with_mode = [
+        (
+            list_name,
+            shopping_lists.is_multi_line_list(list_name),
+            shopping_lists.unprefixed_list_name(list_name, shopping_lists.is_multi_line_list(list_name)),
+        ) for list_name in all_lists
+    ]
+    return render_template("lists.html", lists=lists_with_mode, base_url_path=config.BASE_URL_PATH)
 
 
 @app.route("/items/<list_name>", methods=["GET", "POST"])
@@ -52,12 +60,18 @@ def list_items(list_name):
         if order_by == "state":
             items = sorted(items, key=item_sort_function, reverse=True)
 
+        multi_line_mode = shopping_lists.is_multi_line_list(list_name)
+        unprefixed_name = shopping_lists.unprefixed_list_name(list_name, multi_line_mode)
+
         return render_template(
             "items.html",
-            list_name=list_name, items=items,
+            list_name=list_name,
+            unprefixed_name=unprefixed_name,
+            items=items,
             base_url_path=config.BASE_URL_PATH,
             separator=config.SEPARATOR,
             new_item_located_at_top=new_item_located_at_top,
+            multi_line_mode=multi_line_mode,
         )
 
 

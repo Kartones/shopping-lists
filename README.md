@@ -22,6 +22,15 @@ Very simple, file-based, designed to be mobile-first, although easy to use also 
 
 Status cycles: `Unchecked` -> `Checked` -> `Highlighted` -> `Deleted` -> (cycle restarts, `Unchecked` again)
 
+### Multi-Line Mode
+
+Lists whose filename starts with the configured prefix (default: `multi-`) automatically enable multi-line mode:
+- Multi-line input (ENTER adds new lines instead of submitting)
+- Items display with left alignment
+- Markdown rendering for formatted content
+
+Example: Create a file named `multi-groceries.txt` to have a multi-line enabled grocery list.
+
 ## Development
 
 Just run `make run` and it will tell you the url to access the development version once the container is ready.
