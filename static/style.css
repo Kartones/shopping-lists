@@ -47,3 +47,8 @@ margin-top: 6px;
 .btn-multi-line:hover {
   color: #fff;background-color:#3776A3;
 }
+
+textarea#newItemName {
+  min-width: 400px;
+  min-height: 100px;
+}

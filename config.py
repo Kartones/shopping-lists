@@ -24,7 +24,7 @@ DEBUG = True
 HOST_IP = "0.0.0.0"
 
 # valid values: "top", "bottom"
-NEW_ITEM_LOCATION = "bottom"
+NEW_ITEM_LOCATION = "top"
 
 # Lists starting with this prefix will enable multi-line input mode
 MULTI_LINE_MODE_PREFIX = "multi-"
