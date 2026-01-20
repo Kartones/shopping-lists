@@ -43,7 +43,8 @@
             type="button"
             class="item btn {{ item[2] }} {% if multi_line_mode %}markdown-content{% endif %}"
             data-state="{{ item[1] }}"
-            data-key="{{ item[0] }}"
+            data-key=""
+            data-item-index="{{ loop.index0 }}"
             {% if multi_line_mode %}style="text-align: left;" data-raw="{{ item[0] }}"{% endif %}
           >
             {% if not multi_line_mode %}
@@ -70,11 +71,15 @@
     {% endif %}
 
     <script type="text/javascript">
-      window.ShoppingListConfig = {
-        multilineMode: {{ 'true' if multi_line_mode else 'false' }},
-        separator: "{{ separator }}",
-        baseUrlPath: "{{ base_url_path }}",
-        listName: "{{ list_name }}"
+      window.ShoppingList = {
+        Config: {
+          multilineMode: {{ 'true' if multi_line_mode else 'false' }},
+          separator: "{{ separator }}",
+          baseUrlPath: "{{ base_url_path }}",
+          listName: "{{ list_name }}",
+          serverItems: {{ items | tojson }}
+        },
+        Items: {}
       };
     </script>
     <script src="{{ url_for('static', filename='items.js') }}"></script>
