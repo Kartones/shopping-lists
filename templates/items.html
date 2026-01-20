@@ -86,9 +86,9 @@
         });
       }
 
-      function copyToClipboard(text) {
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(text);
+      function copyToClipboard(target) {
+        if (navigator.clipboard && target.dataset.key) {
+          navigator.clipboard.writeText(target.dataset.key);
         }
       }
 
@@ -102,11 +102,7 @@
         e.target.classList.remove(states[state]);
         e.target.dataset.state = newState;
 
-        if (multiline_mode) {
-          copyToClipboard(e.target.textContent);
-        } else {
-          copyToClipboard(e.target.textContent.trim());
-        }
+        copyToClipboard(e.target);
 
         saveItemAction(e.target.dataset.key, actions[state]);
       };
@@ -166,8 +162,13 @@
 
       window.addEventListener('load', () => {
         document.getElementById("items-buttons").onclick = (eventData) => {
-          if (eventData.target.nodeName === "BUTTON") {
-            toggleItem(eventData);
+          // Clicking on a link inside the item should not toggle the item state
+          if (eventData.target.closest('a')) {
+            return;
+          }
+          const button = eventData.target.closest('button.item.btn');
+          if (button) {
+            toggleItem({ target: button });
             return false;
           }
           return;
