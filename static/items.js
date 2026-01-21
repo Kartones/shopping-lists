@@ -39,11 +39,18 @@ function htmlEncode(str) {
   });
 }
 
+// We don't want to decode everything
+function decodeForClipboard(str) {
+  return str.replace(/<br\s*\/?>/gi, "\n")
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'");
+}
+
 function copyToClipboard(target) {
   if (navigator.clipboard && target.dataset.key) {
     const content = window.ShoppingList.Items[target.dataset.key];
     if (content) {
-      navigator.clipboard.writeText(content);
+      navigator.clipboard.writeText(decodeForClipboard(content));
     }
   }
 }
