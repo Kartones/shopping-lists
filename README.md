@@ -28,6 +28,7 @@ Lists whose filename starts with the configured prefix (default: `multi-`) autom
 - Multi-line input (ENTER adds new lines instead of submitting)
 - Items display with left alignment
 - Markdown rendering for formatted content
+- File upload support (configurable max size, auto-deletion on item removal)
 
 Example: Create a file named `multi-groceries.txt` to have a multi-line enabled grocery list.
 
