@@ -46,11 +46,106 @@ function decodeForClipboard(str) {
             .replace(/&#39;/g, "'");
 }
 
+function isDataUrl(content) {
+  return typeof content === 'string' && content.startsWith('data:');
+}
+
+function isFileReference(content) {
+  return typeof content === 'string' && content.startsWith('file://');
+}
+
+function parseFileReference(fileRef) {
+  // Format: file://<fileId>::<originalName>::<mimeType>
+  if (!isFileReference(fileRef)) return null;
+
+   // Remove "file://" prefix
+  const content = fileRef.substring(7);
+
+  // Using :: separator to avoid conflicts with list separator |
+  if (content.includes('::')) {
+    const parts = content.split('::');
+    return {
+      fileId: parts[0] || '',
+      originalName: parts[1] || 'download',
+      mimeType: parts[2] || 'application/octet-stream'
+    };
+  }
+
+  // Non-files format with | - handle HTML-encoded version
+  const decoded = content.replace(/&#124;/g, '|');
+  const parts = decoded.split('|');
+
+  if (parts.length >= 1) {
+    return {
+      fileId: parts[0] || '',
+      originalName: parts[1] || 'download',
+      mimeType: parts[2] || 'application/octet-stream'
+    };
+  }
+
+  // Last fallback: treat entire content as fileId
+  return {
+    fileId: content,
+    originalName: 'download',
+    mimeType: 'application/octet-stream'
+  };
+}
+
+function extractMediaType(dataUrl) {
+  const match = dataUrl.match(/^data:([^;,]+)/);
+  return match ? match[1] : 'application/octet-stream';
+}
+
+function truncateDataUrlForDisplay(dataUrl) {
+  if (isDataUrl(dataUrl)) {
+    const mediaType = extractMediaType(dataUrl);
+    return `📎 File (${mediaType})`;
+  }
+  if (isFileReference(dataUrl)) {
+    const fileInfo = parseFileReference(dataUrl);
+    return `📎 ${fileInfo.originalName}`;
+  }
+  return dataUrl;
+}
+
+function downloadDataUrl(dataUrl, filename) {
+  const config = window.ShoppingList.Config;
+
+  if (isFileReference(dataUrl)) {
+    const fileInfo = parseFileReference(dataUrl);
+    // Pass original filename as query parameter so backend can set Content-Disposition header
+    const downloadUrl = `${config.baseUrlPath}download-file/${encodeURIComponent(config.listName)}/${encodeURIComponent(fileInfo.fileId)}?filename=${encodeURIComponent(fileInfo.originalName)}`;
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = fileInfo.originalName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } else {
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = filename || 'download';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}
+
 function copyToClipboard(target) {
   if (navigator.clipboard && target.dataset.key) {
     const content = window.ShoppingList.Items[target.dataset.key];
     if (content) {
-      navigator.clipboard.writeText(decodeForClipboard(content));
+      if (isDataUrl(content) || isFileReference(content)) {
+        // Get filename from button attribute or parse from file reference
+        let filename = target.dataset.filename;
+        if (!filename && isFileReference(content)) {
+          const fileInfo = parseFileReference(content);
+          filename = fileInfo.originalName;
+        }
+        downloadDataUrl(content, filename || 'download');
+      } else {
+        navigator.clipboard.writeText(decodeForClipboard(content));
+      }
     }
   }
 }
@@ -65,9 +160,23 @@ function toggleItem(e) {
   e.target.classList.remove(states[state]);
   e.target.dataset.state = newState;
 
-  copyToClipboard(e.target);
+  // Copy to clipboard/download if not transitioning to removed state
+  if (newState !== 3) {
+    copyToClipboard(e.target);
+  }
 
-  saveItemAction(e.target.dataset.key, actions[state]);
+  const itemKey = e.target.dataset.key;
+  const content = window.ShoppingList.Items[itemKey];
+
+  saveItemAction(itemKey, actions[state]);
+
+  // Remove button from DOM if it's a file reference reaching deleted state
+  if (newState === 3 && content && isFileReference(content)) {
+    setTimeout(() => {
+      e.target.remove();
+      delete window.ShoppingList.Items[itemKey];
+    }, 100);
+  }
 }
 
 function saveItemAction(itemHash, action) {
@@ -97,9 +206,77 @@ function saveItemAction(itemHash, action) {
   });
 }
 
+function uploadFileAsItem() {
+  const config = window.ShoppingList.Config;
+  const fileInput = document.getElementById('fileInput');
+  const file = fileInput.files[0];
+
+  if (!file) return;
+
+  const maxSizeBytes = config.maxFileSizeMb * 1024 * 1024;
+  if (file.size > maxSizeBytes) {
+    alert(`File too large. Maximum size: ${config.maxFileSizeMb}MB`);
+    fileInput.value = '';
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  fetch(`${config.baseUrlPath}upload-file/${encodeURIComponent(config.listName)}`, {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    // Store file reference using :: separator to avoid conflicts with list separator |
+    const fileReference = `file://${data.fileId}::${data.originalName}::${data.mimeType}`;
+    const itemHash = generateUniqueHash(fileReference);
+    window.ShoppingList.Items[itemHash] = fileReference;
+
+    const displayContent = truncateDataUrlForDisplay(fileReference);
+    const location = config.newItemLocationAtTop ? 'afterbegin' : 'beforeend';
+
+    document.getElementById('items-buttons').insertAdjacentHTML(
+      location,
+      `<button type="button" class="item btn btn-warning markdown-content" style="text-align: left;" data-state="1" data-key="${itemHash}" data-filename="${htmlEncode(data.originalName)}">${displayContent}</button>`
+    );
+
+    fileInput.value = '';
+    saveItemAction(itemHash, 'c');
+  })
+  .catch(error => {
+    alert(`File upload failed: ${error.message}`);
+    fileInput.value = '';
+  });
+}
+
 function addNewItemToList() {
   const config = window.ShoppingList.Config;
-  let newItemName = document.getElementById("newItemName").value;
+  const newItemNameInput = document.getElementById("newItemName");
+  let newItemName = newItemNameInput.value;
+
+  if (isDataUrl(newItemName) || isFileReference(newItemName)) {
+    const itemHash = generateUniqueHash(newItemName);
+    window.ShoppingList.Items[itemHash] = newItemName;
+
+    const displayContent = truncateDataUrlForDisplay(newItemName);
+    const location = config.newItemLocationAtTop ? 'afterbegin' : 'beforeend';
+
+    document.getElementById('items-buttons').insertAdjacentHTML(
+      location,
+      `<button type="button" class="item btn btn-warning markdown-content" style="text-align: left;" data-state="1" data-key="${itemHash}">${displayContent}</button>`
+    );
+
+    newItemNameInput.value = '';
+    saveItemAction(itemHash, 'c');
+    return;
+  }
+
   if (config.multilineMode) {
     newItemName = newItemName.replace(/\n/g, '<br>');
   } else {
@@ -123,7 +300,7 @@ function addNewItemToList() {
       `<button type="button" class="item btn btn-warning${classAttr}" data-state="1" data-key="${itemHash}"${styleAttr}${dataRawAttr}>${displayContent}</button>`
     );
 
-    document.getElementById("newItemName").value = "";
+    newItemNameInput.value = "";
 
     saveItemAction(itemHash, "c");
   }
@@ -146,6 +323,12 @@ window.addEventListener('load', () => {
       const button = document.querySelector(`button.item[data-item-index="${index}"]`);
       if (button) {
         button.dataset.key = hash;
+
+        // Set filename attribute for file references
+        if (isFileReference(content)) {
+          const fileInfo = parseFileReference(content);
+          button.dataset.filename = fileInfo.originalName;
+        }
       }
     });
   }
@@ -165,6 +348,14 @@ window.addEventListener('load', () => {
 
   document.getElementById("addNewItemButton").onclick = addNewItemToList;
 
+  if (config.multilineMode && config.multilineFileUpload) {
+    document.getElementById('uploadFileButton').onclick = function() {
+      document.getElementById('fileInput').click();
+    };
+
+    document.getElementById('fileInput').addEventListener('change', uploadFileAsItem);
+  }
+
   if (config.multilineMode) {
     const renderer = {
       link(href, title, text) {
@@ -178,7 +369,16 @@ window.addEventListener('load', () => {
     document.querySelectorAll('.markdown-content').forEach(element => {
       const rawText = element.dataset.raw;
       if (rawText) {
-        element.innerHTML = marked.parse(rawText.replace(/<br\s*\/?>/gi, '\n'));
+        if (isDataUrl(rawText) || isFileReference(rawText)) {
+          element.innerHTML = truncateDataUrlForDisplay(rawText);
+          // Set filename attribute from file reference if not already set
+          if (!element.dataset.filename && isFileReference(rawText)) {
+            const fileInfo = parseFileReference(rawText);
+            element.dataset.filename = fileInfo.originalName;
+          }
+        } else {
+          element.innerHTML = marked.parse(rawText.replace(/<br\s*\/?>/gi, '\n'));
+        }
       }
     });
   }

@@ -35,6 +35,10 @@
           <input id="newItemName" type="text" placeholder="New item..." />
           {% endif %}
           <button id="addNewItemButton" type="button" class="btn btn-default" {% if multi_line_mode %}style="vertical-align: top;"{% endif %}><strong>+</strong></button>
+          {% if multi_line_mode and multi_line_file_upload %}
+          <input type="file" id="fileInput" style="display: none;" />
+          <button id="uploadFileButton" type="button" class="btn btn-default" style="vertical-align: top;" title="Upload file">↑</button>
+          {% endif %}
       </div>
       {% endif %}
       <div id="items-buttons">
@@ -66,6 +70,10 @@
           <input id="newItemName" type="text" placeholder="New item..." />
           {% endif %}
           <button id="addNewItemButton" type="button" class="btn btn-default" {% if multi_line_mode %}style="vertical-align: top;"{% endif %}><strong>+</strong></button>
+          {% if multi_line_mode and multi_line_file_upload %}
+          <input type="file" id="fileInput" style="display: none;" />
+          <button id="uploadFileButton" type="button" class="btn btn-default" style="vertical-align: top;" title="Upload file">↑</button>
+          {% endif %}
       </div>
     </footer>
     {% endif %}
@@ -77,7 +85,10 @@
           separator: "{{ separator }}",
           baseUrlPath: "{{ base_url_path }}",
           listName: "{{ list_name }}",
-          serverItems: {{ items | tojson }}
+          serverItems: {{ items | tojson }},
+          multilineFileUpload: {{ 'true' if multi_line_file_upload else 'false' }},
+          maxFileSizeMb: {{ max_file_size_mb }},
+          newItemLocationAtTop: {{ 'true' if new_item_located_at_top else 'false' }}
         },
         Items: {}
       };

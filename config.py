@@ -28,3 +28,8 @@ NEW_ITEM_LOCATION = "top"
 
 # Lists starting with this prefix will enable multi-line input mode
 MULTI_LINE_MODE_PREFIX = "multi-"
+
+# Enable file upload for multi-line lists
+MULTI_LINE_FILE_UPLOAD = False
+# Maximum file size in MB for uploads
+MAX_FILE_SIZE_MB = 3
