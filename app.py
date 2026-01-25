@@ -171,7 +171,11 @@ def download_file(list_name, file_id):
     if not os.path.exists(file_path):
         return "File not found", 404
 
-    original_name = request.args.get("filename", file_id)
+    requested_name = request.args.get("filename")
+    if requested_name:
+        original_name = secure_filename(requested_name) or file_id
+    else:
+        original_name = file_id
 
     return send_from_directory(files_dir, file_id, download_name=original_name)
 
