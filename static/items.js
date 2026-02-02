@@ -294,7 +294,7 @@ function addNewItemToList() {
     const styleAttr = config.multilineMode ? ' style="text-align: left;"' : '';
     const classAttr = config.multilineMode ? ' markdown-content' : '';
     const dataRawAttr = config.multilineMode ? ` data-raw="${newItemName}"` : '';
-    const displayContent = config.multilineMode ? marked.parse(newItemName.replace(/<br\s*\/?>/gi, '\n')) : newItemName;
+    const displayContent = config.multilineMode ? marked.parse(decodeForClipboard(newItemName)) : newItemName;
 
     document.getElementById("items-buttons").insertAdjacentHTML(
       "beforeend",
@@ -378,7 +378,7 @@ window.addEventListener('load', () => {
             element.dataset.filename = fileInfo.originalName;
           }
         } else {
-          element.innerHTML = marked.parse(rawText.replace(/<br\s*\/?>/gi, '\n'));
+          element.innerHTML = marked.parse(decodeForClipboard(rawText));
         }
       }
     });
