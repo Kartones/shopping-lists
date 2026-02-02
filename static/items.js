@@ -43,7 +43,8 @@ function htmlEncode(str) {
 function decodeForClipboard(str) {
   return str.replace(/<br\s*\/?>/gi, "\n")
             .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'");
+            .replace(/&#39;/g, "'")
+            .replace(/&#124;/g, '|');
 }
 
 function isDataUrl(content) {
