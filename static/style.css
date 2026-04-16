@@ -94,3 +94,68 @@ textarea#newItemName {
   min-width: 400px;
   min-height: 100px;
 }
+
+#theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: .4rem .6rem;
+  margin-left: auto;
+  padding-left: 64px;
+  line-height: 1;
+}
+
+[data-theme="dark"] body {
+  background-color: #212529;
+  color: #dee2e6;
+}
+
+[data-theme="dark"] .bg-light {
+  background-color: #343a40 !important;
+}
+
+[data-theme="dark"] .footer {
+  background-color: #343a40;
+}
+
+[data-theme="dark"] .nav-link {
+  color: #adb5bd;
+}
+
+[data-theme="dark"] .nav-link:focus,
+[data-theme="dark"] .nav-link:hover {
+  color: #dee2e6;
+}
+
+[data-theme="dark"] .nav-pills .nav-link.active {
+  background-color: #495057;
+  color: #dee2e6;
+  border-color: #495057;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] #newItemName {
+  background-color: #343a40;
+  color: #dee2e6;
+  border-color: #495057;
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] #newItemName:focus {
+  background-color: #343a40;
+  color: #dee2e6;
+}
+
+[data-theme="dark"] .btn-default {
+  color: #dee2e6;
+  background-color: #7b838a;
+  border-color: #adb5bd;
+}
+
+[data-theme="dark"] .btn-default:hover,
+[data-theme="dark"] .btn-default:focus {
+  color: #dee2e6;
+  background-color: #6c7379;
+  border-color: #adb5bd;
+}

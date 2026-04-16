@@ -10,6 +10,7 @@
     <script src="{{ url_for('static', filename='marked.min.js') }}"></script>
     {% endif %}
     <title>Shopping List {{ unprefixed_name }}</title>
+    <script>(function(){var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}());</script>
   </head>
 <body role="document">
 
@@ -20,6 +21,7 @@
     <li class="nav-item">
       <a class="nav-link active" href="#">Items</a>
     </li>
+    <li><button id="theme-toggle" title="Toggle theme">🌙</button></li>
   </ul>
 
     <div class="container" style="margin-top: 12px">
@@ -79,6 +81,23 @@
     {% endif %}
 
     <script type="text/javascript">
+      (function() {
+        var btn = document.getElementById('theme-toggle');
+        if (document.documentElement.getAttribute('data-theme') === 'dark') btn.textContent = '☀️';
+        btn.addEventListener('click', function() {
+          var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (isDark) {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            btn.textContent = '🌙';
+          } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            btn.textContent = '☀️';
+          }
+        });
+      }());
+
       window.ShoppingList = {
         Config: {
           multilineMode: {{ 'true' if multi_line_mode else 'false' }},
