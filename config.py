@@ -33,3 +33,6 @@ MULTI_LINE_MODE_PREFIX = "multi-"
 MULTI_LINE_FILE_UPLOAD = False
 # Maximum file size in MB for uploads
 MAX_FILE_SIZE_MB = 3
+
+# Change to bust browser cache for static assets (CSS, JS)
+CACHE_BUSTER = "20260417175715"

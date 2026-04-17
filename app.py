@@ -46,7 +46,7 @@ def lists():
             shopping_lists.unprefixed_list_name(list_name, shopping_lists.is_multi_line_list(list_name)),
         ) for list_name in all_lists
     ]
-    return render_template("lists.html", lists=lists_with_mode, base_url_path=config.BASE_URL_PATH)
+    return render_template("lists.html", lists=lists_with_mode, base_url_path=config.BASE_URL_PATH, cache_buster=config.CACHE_BUSTER)
 
 
 @app.route("/items/<list_name>", methods=["GET", "POST"])
@@ -107,6 +107,7 @@ def list_items(list_name):
             multi_line_mode=multi_line_mode,
             multi_line_file_upload=config.MULTI_LINE_FILE_UPLOAD,
             max_file_size_mb=config.MAX_FILE_SIZE_MB,
+            cache_buster=config.CACHE_BUSTER,
         )
 
 
@@ -189,9 +190,9 @@ def login():
             response.set_cookie(key=config.COOKIE_KEY, value=config.COOKIE_PASS, max_age=31536000)
             return response
         else:
-            return render_template("login.html", base_url_path=config.BASE_URL_PATH)
+            return render_template("login.html", base_url_path=config.BASE_URL_PATH, cache_buster=config.CACHE_BUSTER)
     else:
-        return render_template("login.html", base_url_path=config.BASE_URL_PATH)
+        return render_template("login.html", base_url_path=config.BASE_URL_PATH, cache_buster=config.CACHE_BUSTER)
 
 
 if __name__ == "__main__":

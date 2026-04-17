@@ -25,6 +25,7 @@ ifndef COMPOSE
 endif
 
 build: deps
+	@scripts/timestamp_assets.sh
 	$(COMPOSE) -f build/docker-compose.yml build
 
 stop:
