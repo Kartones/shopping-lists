@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -!- coding: utf-8 -!-
 
+import re
 from functools import wraps
 from flask import Flask, request, redirect, render_template, make_response, send_from_directory, jsonify
 import os
@@ -14,6 +15,10 @@ from decorators.css_class import CSSClassDecorator
 app = Flask(__name__)
 
 app.config['MAX_CONTENT_LENGTH'] = int(config.MAX_FILE_SIZE_MB * 1024 * 1024)
+
+
+def _sanitize_folder_name(name):
+    return re.sub(r'[/\\.]', '', name) if name else None
 
 
 def item_sort_function(item):
@@ -46,13 +51,34 @@ def lists():
             shopping_lists.unprefixed_list_name(list_name, shopping_lists.is_multi_line_list(list_name)),
         ) for list_name in all_lists
     ]
-    return render_template("lists.html", lists=lists_with_mode, base_url_path=config.BASE_URL_PATH, cache_buster=config.CACHE_BUSTER)
+
+    all_folders = shopping_lists.get_all_folders()
+    folders_with_lists = []
+    for folder_name in all_folders:
+        folder_lists = shopping_lists.get_lists_in_folder(folder_name)
+        folder_lists_with_multiline_mode = [
+            (
+                list_name,
+                shopping_lists.is_multi_line_list(list_name),
+                shopping_lists.unprefixed_list_name(list_name, shopping_lists.is_multi_line_list(list_name)),
+            ) for list_name in folder_lists
+        ]
+        folders_with_lists.append((folder_name, folder_lists_with_multiline_mode))
+
+    return render_template(
+        "lists.html",
+        lists=lists_with_mode,
+        folders=folders_with_lists,
+        base_url_path=config.BASE_URL_PATH,
+        cache_buster=config.CACHE_BUSTER,
+    )
 
 
 @app.route("/items/<list_name>", methods=["GET", "POST"])
 @authenticated
 def list_items(list_name):
     shopping_lists = ShoppingLists(config)
+    folder_name = _sanitize_folder_name(request.args.get("folder"))
     if request.method == "POST":
         form_data = [key for key in request.form.keys()]
         action, item_name = form_data[0].split(config.SEPARATOR) if form_data else (None, None)
@@ -70,7 +96,7 @@ def list_items(list_name):
                 file_id = file_content.split("|")[0]
 
             if config.MULTI_LINE_FILE_UPLOAD and file_id:
-                files_dir = os.path.join(config.LISTS_FOLDER, f"{list_name}_files")
+                files_dir = shopping_lists.get_files_dir(list_name, folder_name)
                 safe_file_id = secure_filename(file_id)
                 if safe_file_id == file_id:
                     file_path = os.path.join(files_dir, file_id)
@@ -84,11 +110,11 @@ def list_items(list_name):
                 else:
                     print(f"Warning: Unsafe file ID detected: {file_id}")
 
-        shopping_lists.save_list_item_action(list_name, item_name, action)
+        shopping_lists.save_list_item_action(list_name, item_name, action, folder_name)
         return "", 204
     else:
         new_item_located_at_top = config.NEW_ITEM_LOCATION == "top"
-        items = CSSClassDecorator.decorate_items(shopping_lists.get_items(list_name))
+        items = CSSClassDecorator.decorate_items(shopping_lists.get_items(list_name, folder_name))
         order_by = request.args.get("order_by")
         if order_by == "state":
             items = sorted(items, key=item_sort_function, reverse=True)
@@ -99,6 +125,7 @@ def list_items(list_name):
         return render_template(
             "items.html",
             list_name=list_name,
+            folder_name=folder_name or "",
             unprefixed_name=unprefixed_name,
             items=items,
             base_url_path=config.BASE_URL_PATH,
@@ -124,7 +151,9 @@ def upload_file(list_name):
     if file.filename == "":
         return jsonify({"error": "Empty filename"}), 400
 
-    files_dir = os.path.join(config.LISTS_FOLDER, f"{list_name}_files")
+    folder_name = _sanitize_folder_name(request.args.get("folder"))
+    shopping_lists = ShoppingLists(config)
+    files_dir = shopping_lists.get_files_dir(list_name, folder_name)
     os.makedirs(files_dir, exist_ok=True)
 
     original_filename = secure_filename(file.filename)
@@ -162,7 +191,9 @@ def download_file(list_name, file_id):
     if not config.MULTI_LINE_FILE_UPLOAD:
         return "File download disabled", 403
 
-    files_dir = os.path.join(config.LISTS_FOLDER, f"{list_name}_files")
+    folder_name = _sanitize_folder_name(request.args.get("folder"))
+    shopping_lists = ShoppingLists(config)
+    files_dir = shopping_lists.get_files_dir(list_name, folder_name)
 
     safe_file_id = secure_filename(file_id)
     if safe_file_id != file_id:

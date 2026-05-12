@@ -115,7 +115,9 @@ function downloadDataUrl(dataUrl, filename) {
   if (isFileReference(dataUrl)) {
     const fileInfo = parseFileReference(dataUrl);
     // Pass original filename as query parameter so backend can set Content-Disposition header
-    const downloadUrl = `${config.baseUrlPath}download-file/${encodeURIComponent(config.listName)}/${encodeURIComponent(fileInfo.fileId)}?filename=${encodeURIComponent(fileInfo.originalName)}`;
+    const params = new URLSearchParams({ filename: fileInfo.originalName });
+    if (config.folderName) params.append('folder', config.folderName);
+    const downloadUrl = `${config.baseUrlPath}download-file/${encodeURIComponent(config.listName)}/${encodeURIComponent(fileInfo.fileId)}?${params.toString()}`;
     const link = document.createElement('a');
     link.href = downloadUrl;
     link.download = fileInfo.originalName;
@@ -192,7 +194,8 @@ function saveItemAction(itemHash, action) {
   const escapedSeparator = config.separator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const encodedItemName = itemName.replace(new RegExp(escapedSeparator, 'g'), htmlEncode(config.separator));
 
-  fetch(`${config.baseUrlPath}items/${encodeURIComponent(config.listName)}`, {
+  const folderParam = config.folderName ? `?folder=${encodeURIComponent(config.folderName)}` : '';
+  fetch(`${config.baseUrlPath}items/${encodeURIComponent(config.listName)}${folderParam}`, {
     body: encodeURIComponent(`${action}${config.separator}${encodedItemName}`),
     method: "POST",
     headers: {"Content-type": "application/x-www-form-urlencoded; charset=UTF-8"}
@@ -223,7 +226,8 @@ function uploadFileAsItem() {
 
   const formData = new FormData();
   formData.append('file', file);
-  fetch(`${config.baseUrlPath}upload-file/${encodeURIComponent(config.listName)}`, {
+  const folderParam = config.folderName ? `?folder=${encodeURIComponent(config.folderName)}` : '';
+  fetch(`${config.baseUrlPath}upload-file/${encodeURIComponent(config.listName)}${folderParam}`, {
     method: 'POST',
     body: formData
   })

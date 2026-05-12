@@ -84,6 +84,18 @@ margin-top: 6px;
   background-color:#D6E5BD;
 }
 
+.btn-folder {
+  color: #000;
+  border-color: #FFCB9A;
+  background-color: #FFE5C4;
+}
+
+.btn-folder:hover, .btn-folder:focus {
+  color: #000;
+  background-color: #FFCB9A;
+  border-color: #FFCB9A;
+}
+
 .nav-pills .nav-link.active {
   color: #000;
   border-color: #BCD8EC;
@@ -158,4 +170,17 @@ textarea#newItemName {
   color: #212529;
   background-color: #9ea6ac;
   border-color: #adb5bd;
+}
+
+[data-theme="dark"] .btn-folder {
+  color: #212529;
+  border-color: #C8813A;
+  background-color: #D4924E;
+}
+
+[data-theme="dark"] .btn-folder:hover,
+[data-theme="dark"] .btn-folder:focus {
+  color: #212529;
+  background-color: #C8813A;
+  border-color: #C8813A;
 }

@@ -32,6 +32,14 @@
         {% for list, is_multi_line, unprefixed_name in lists %}
             <button type="button" class="list btn btn-lg {% if is_multi_line %}btn-multi-line{% else %}btn-primary{% endif %}" data-listname="{{ list }}" {% if is_multi_line %}title="Multi-line mode enabled"{% endif %}>{{ unprefixed_name }}</button>&nbsp;
         {% endfor %}
+        {% for folder_name, folder_lists in folders %}
+            <button type="button" class="list btn btn-lg btn-folder" data-folder="{{ folder_name }}">📂 {{ folder_name }}</button>&nbsp;
+            <div id="folder-{{ folder_name }}" class="folder-contents" style="display:none; margin-top: 8px; margin-bottom: 8px; padding: 8px 0 4px 16px; border-left: 3px solid #FFCB9A;">
+              {% for list, is_multi_line, unprefixed_name in folder_lists %}
+                  <button type="button" class="list btn btn-lg {% if is_multi_line %}btn-multi-line{% else %}btn-primary{% endif %}" data-listname="{{ list }}" data-folder="{{ folder_name }}" {% if is_multi_line %}title="Multi-line mode enabled"{% endif %}>{{ unprefixed_name }}</button>&nbsp;
+              {% endfor %}
+            </div>
+        {% endfor %}
       </div>
     </div>
 
@@ -56,8 +64,23 @@
       window.addEventListener('load', () => {
         document.getElementById("list-buttons").onclick = (eventData) => {
           if (eventData.target.nodeName === "BUTTON") {
-            window.location = `{{ base_url_path }}items/${encodeURIComponent(eventData.target.dataset.listname)}`;
-            return false;
+            const folderName = eventData.target.dataset.folder;
+            const listName = eventData.target.dataset.listname;
+
+            if (listName) {
+              let url = `{{ base_url_path }}items/${encodeURIComponent(listName)}`;
+              if (folderName) url += `?folder=${encodeURIComponent(folderName)}`;
+              window.location = url;
+              return false;
+            }
+
+            if (folderName) {
+              const contentsDiv = document.getElementById('folder-' + folderName);
+              if (contentsDiv) {
+                contentsDiv.style.display = contentsDiv.style.display === 'none' ? 'block' : 'none';
+              }
+              return false;
+            }
           }
           return;
         };

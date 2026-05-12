@@ -25,12 +25,34 @@ class ShoppingLists():
         files = self._get_txt_files_from_directory(folder_path)
         return [self._get_list_name(file) for file in sorted(files)]
 
-    def get_items(self, list_name):
-        file_path = os.path.join(".", self.config.LISTS_FOLDER, "{}.txt".format(self._clean_list_name(list_name)))
+    def get_all_folders(self):
+        folder_path = os.path.join(".", self.config.LISTS_FOLDER)
+        return sorted([
+            name for name in os.listdir(folder_path)
+            if os.path.isdir(os.path.join(folder_path, name)) and not name.endswith("_files")
+        ])
+
+    def get_lists_in_folder(self, folder_name):
+        clean_folder = self._clean_folder_name(folder_name)
+        folder_path = os.path.join(".", self.config.LISTS_FOLDER, clean_folder)
+        if not os.path.isdir(folder_path):
+            return []
+        files = self._get_txt_files_from_directory(folder_path)
+        return [self._get_list_name(file) for file in sorted(files)]
+
+    def get_files_dir(self, list_name, folder_name=None):
+        clean_name = self._clean_list_name(list_name)
+        if folder_name:
+            clean_folder = self._clean_folder_name(folder_name)
+            return os.path.join(self.config.LISTS_FOLDER, clean_folder, "{}_files".format(clean_name))
+        return os.path.join(self.config.LISTS_FOLDER, "{}_files".format(clean_name))
+
+    def get_items(self, list_name, folder_name=None):
+        file_path = self._get_file_path(list_name, folder_name)
         return self._load_list_items_from_file(file_path)
 
-    def save_list_item_action(self, list_name, item_name, action):
-        file_path = os.path.join(".", self.config.LISTS_FOLDER, "{}.txt".format(self._clean_list_name(list_name)))
+    def save_list_item_action(self, list_name, item_name, action, folder_name=None):
+        file_path = self._get_file_path(list_name, folder_name)
         items = self._load_list_items_from_file(file_path)
 
         if action == "c":
@@ -43,17 +65,24 @@ class ShoppingLists():
             if item_name in items:
                 del items[item_name]
 
-        self._save_list(list_name, items)
+        self._save_list(list_name, items, folder_name)
 
         EventLogger.log(list_name, item_name, action)
 
-    def _save_list(self, list_name, list_items):
+    def _save_list(self, list_name, list_items, folder_name=None):
         separator = self.config.SEPARATOR
-        file_path = os.path.join(".", self.config.LISTS_FOLDER, "{}.txt".format(self._clean_list_name(list_name)))
+        file_path = self._get_file_path(list_name, folder_name)
         if not os.path.exists(file_path):
             raise IOError("Invalid list")
         with open(file_path, "w") as file:
             file.write("\r\n".join(["{}{}{}".format(name, separator, state) for name, state in list_items.items()]))
+
+    def _get_file_path(self, list_name, folder_name=None):
+        clean_name = self._clean_list_name(list_name)
+        if folder_name:
+            clean_folder = self._clean_folder_name(folder_name)
+            return os.path.join(".", self.config.LISTS_FOLDER, clean_folder, "{}.txt".format(clean_name))
+        return os.path.join(".", self.config.LISTS_FOLDER, "{}.txt".format(clean_name))
 
     @staticmethod
     def _get_txt_files_from_directory(path):
@@ -73,3 +102,7 @@ class ShoppingLists():
     @staticmethod
     def _clean_list_name(list_name):
         return re.sub(r"[\/\\\.]", "", list_name)
+
+    @staticmethod
+    def _clean_folder_name(folder_name):
+        return re.sub(r"[\/\\\.\s]", "", folder_name)
