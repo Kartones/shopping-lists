@@ -30,9 +30,9 @@ NEW_ITEM_LOCATION = "top"
 MULTI_LINE_MODE_PREFIX = "multi-"
 
 # Enable file upload for multi-line lists
-MULTI_LINE_FILE_UPLOAD = False
+MULTI_LINE_FILE_UPLOAD = True
 # Maximum file size in MB for uploads
 MAX_FILE_SIZE_MB = 3
 
 # Change to bust browser cache for static assets (CSS, JS)
-CACHE_BUSTER = "20260417175715"
+CACHE_BUSTER = "20260518172823"
