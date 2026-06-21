@@ -35,4 +35,4 @@ MULTI_LINE_FILE_UPLOAD = True
 MAX_FILE_SIZE_MB = 3
 
 # Change to bust browser cache for static assets (CSS, JS)
-CACHE_BUSTER = "20260518172823"
+CACHE_BUSTER = "20260621200710"

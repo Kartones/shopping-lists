@@ -291,28 +291,47 @@ function addNewItemToList() {
     return match === "'" ? "&#39;" : "&quot;";
   });
 
-  if (newItemName.length > 0 && !itemExists(newItemName)) {
-    const itemHash = generateUniqueHash(newItemName);
-    window.ShoppingList.Items[itemHash] = newItemName;
+  if (newItemName.length > 0) {
+    const existingKey = findItemKey(newItemName);
+    if (existingKey === null) {
+      const itemHash = generateUniqueHash(newItemName);
+      window.ShoppingList.Items[itemHash] = newItemName;
 
-    const styleAttr = config.multilineMode ? ' style="text-align: left;"' : '';
-    const classAttr = config.multilineMode ? ' markdown-content' : '';
-    const dataRawAttr = config.multilineMode ? ` data-raw="${newItemName}"` : '';
-    const displayContent = config.multilineMode ? marked.parse(decodeForClipboard(newItemName)) : newItemName;
+      const styleAttr = config.multilineMode ? ' style="text-align: left;"' : '';
+      const classAttr = config.multilineMode ? ' markdown-content' : '';
+      const dataRawAttr = config.multilineMode ? ` data-raw="${newItemName}"` : '';
+      const displayContent = config.multilineMode ? marked.parse(decodeForClipboard(newItemName)) : newItemName;
 
-    document.getElementById("items-buttons").insertAdjacentHTML(
-      "beforeend",
-      `<button type="button" class="item btn btn-warning${classAttr}" data-state="1" data-key="${itemHash}"${styleAttr}${dataRawAttr}>${displayContent}</button>`
-    );
+      document.getElementById("items-buttons").insertAdjacentHTML(
+        "beforeend",
+        `<button type="button" class="item btn btn-warning${classAttr}" data-state="1" data-key="${itemHash}"${styleAttr}${dataRawAttr}>${displayContent}</button>`
+      );
 
+      saveItemAction(itemHash, "c");
+    } else {
+      const existingButton = document.querySelector(`button.item[data-key="${existingKey}"]`);
+      if (existingButton) {
+        const currentState = parseInt(existingButton.dataset.state, 10);
+        if (currentState !== 1 && currentState !== 2) {
+          const stateClasses = ["btn-default", "btn-warning", "btn-danger", "btn-dark"];
+          existingButton.classList.remove(stateClasses[currentState]);
+          existingButton.classList.add("btn-warning");
+          existingButton.dataset.state = "1";
+          saveItemAction(existingKey, "c");
+        }
+      }
+    }
     newItemNameInput.value = "";
-
-    saveItemAction(itemHash, "c");
   }
 }
 
 function itemExists(itemName) {
   return Object.values(window.ShoppingList.Items).some(content => content === itemName);
+}
+
+function findItemKey(itemName) {
+  const entry = Object.entries(window.ShoppingList.Items).find(([, content]) => content === itemName);
+  return entry ? entry[0] : null;
 }
 
 window.addEventListener('load', () => {
