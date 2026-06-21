@@ -4,6 +4,10 @@
 import os
 import re
 
+from constants import (
+  ACTION_CREATE, ACTION_UPDATE, ACTION_HIGHLIGHT, ACTION_DELETE, ITEM_STATUS_DEFAULT, ITEM_STATUS_ACTIVE,
+  ITEM_STATUS_HIGHLIGHTED
+)
 from services.event_logger import EventLogger
 
 
@@ -55,13 +59,13 @@ class ShoppingLists():
         file_path = self._get_file_path(list_name, folder_name)
         items = self._load_list_items_from_file(file_path)
 
-        if action == "c":
-            items[item_name] = "1"
-        elif action == "u":
-            items[item_name] = "0"
-        elif action == "h":
-            items[item_name] = "2"
-        elif action == "d":
+        if action == ACTION_CREATE:
+            items[item_name] = ITEM_STATUS_ACTIVE
+        elif action == ACTION_UPDATE:
+            items[item_name] = ITEM_STATUS_DEFAULT
+        elif action == ACTION_HIGHLIGHT:
+            items[item_name] = ITEM_STATUS_HIGHLIGHTED
+        elif action == ACTION_DELETE:
             if item_name in items:
                 del items[item_name]
 

@@ -1,3 +1,9 @@
+// Item state constants are mirrored in constants.py — keep both in sync.
+const ITEM_STATE_DEFAULT = 0;
+const ITEM_STATE_ACTIVE = 1;
+const ITEM_STATE_HIGHLIGHTED = 2;
+const ITEM_STATE_DELETED = 3;
+
 // Global namespace initialized in template:
 // window.ShoppingList.Config - configuration from server
 // window.ShoppingList.Items - hash-to-content mapping
@@ -164,7 +170,7 @@ function toggleItem(e) {
   e.target.dataset.state = newState;
 
   // Copy to clipboard/download if not transitioning to removed state
-  if (newState !== 3) {
+  if (newState !== ITEM_STATE_DELETED) {
     copyToClipboard(e.target);
   }
 
@@ -174,7 +180,7 @@ function toggleItem(e) {
   saveItemAction(itemKey, actions[state]);
 
   // Remove button from DOM if it's a file reference reaching deleted state
-  if (newState === 3 && content && isFileReference(content)) {
+  if (newState === ITEM_STATE_DELETED && content && isFileReference(content)) {
     setTimeout(() => {
       e.target.remove();
       delete window.ShoppingList.Items[itemKey];
@@ -248,7 +254,7 @@ function uploadFileAsItem() {
 
     document.getElementById('items-buttons').insertAdjacentHTML(
       location,
-      `<button type="button" class="item btn btn-warning markdown-content" style="text-align: left;" data-state="1" data-key="${itemHash}" data-filename="${htmlEncode(data.originalName)}">${displayContent}</button>`
+      `<button type="button" class="item btn btn-warning markdown-content" style="text-align: left;" data-state="${ITEM_STATE_ACTIVE}" data-key="${itemHash}" data-filename="${htmlEncode(data.originalName)}">${displayContent}</button>`
     );
 
     fileInput.value = '';
@@ -274,7 +280,7 @@ function addNewItemToList() {
 
     document.getElementById('items-buttons').insertAdjacentHTML(
       location,
-      `<button type="button" class="item btn btn-warning markdown-content" style="text-align: left;" data-state="1" data-key="${itemHash}">${displayContent}</button>`
+      `<button type="button" class="item btn btn-warning markdown-content" style="text-align: left;" data-state="${ITEM_STATE_ACTIVE}" data-key="${itemHash}">${displayContent}</button>`
     );
 
     newItemNameInput.value = '';
@@ -304,7 +310,7 @@ function addNewItemToList() {
 
       document.getElementById("items-buttons").insertAdjacentHTML(
         "beforeend",
-        `<button type="button" class="item btn btn-warning${classAttr}" data-state="1" data-key="${itemHash}"${styleAttr}${dataRawAttr}>${displayContent}</button>`
+        `<button type="button" class="item btn btn-warning${classAttr}" data-state="${ITEM_STATE_ACTIVE}" data-key="${itemHash}"${styleAttr}${dataRawAttr}>${displayContent}</button>`
       );
 
       saveItemAction(itemHash, "c");
@@ -312,11 +318,11 @@ function addNewItemToList() {
       const existingButton = document.querySelector(`button.item[data-key="${existingKey}"]`);
       if (existingButton) {
         const currentState = parseInt(existingButton.dataset.state, 10);
-        if (currentState !== 1 && currentState !== 2) {
+        if (currentState !== ITEM_STATE_ACTIVE && currentState !== ITEM_STATE_HIGHLIGHTED) {
           const stateClasses = ["btn-default", "btn-warning", "btn-danger", "btn-dark"];
           existingButton.classList.remove(stateClasses[currentState]);
           existingButton.classList.add("btn-warning");
-          existingButton.dataset.state = "1";
+          existingButton.dataset.state = String(ITEM_STATE_ACTIVE);
           saveItemAction(existingKey, "c");
         }
       }

@@ -1,3 +1,8 @@
+from constants import ITEM_STATUS_DEFAULT, ITEM_STATUS_ACTIVE, ITEM_STATUS_HIGHLIGHTED
+
+_CSS_CLASS_DEFAULT = "btn-default"
+_CSS_CLASS_ACTIVE = "btn-warning"
+_CSS_CLASS_HIGHLIGHTED = "btn-danger"
 
 
 class CSSClassDecorator():
@@ -14,11 +19,11 @@ class CSSClassDecorator():
     @staticmethod
     def _css_class_for_item(item_status):
         css_class = ""
-        if item_status == "0":
-            css_class = "btn-default"
-        elif item_status == "1":
-            css_class = "btn-warning"
-        elif item_status == "2":
-            css_class = "btn-danger"
+        if item_status == ITEM_STATUS_DEFAULT:
+            css_class = _CSS_CLASS_DEFAULT
+        elif item_status == ITEM_STATUS_ACTIVE:
+            css_class = _CSS_CLASS_ACTIVE
+        elif item_status == ITEM_STATUS_HIGHLIGHTED:
+            css_class = _CSS_CLASS_HIGHLIGHTED
 
         return css_class

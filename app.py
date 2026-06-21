@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 import uuid
 
 import config
+from constants import ACTION_DELETE
 from services.shopping_lists import ShoppingLists
 from decorators.css_class import CSSClassDecorator
 
@@ -84,7 +85,7 @@ def list_items(list_name):
         action, item_name = form_data[0].split(config.SEPARATOR) if form_data else (None, None)
 
         # Handle file deletion when item is removed (action "d")
-        if action == "d" and item_name and item_name.startswith("file://"):
+        if action == ACTION_DELETE and item_name and item_name.startswith("file://"):
             # Parse file reference: file://<fileId>::<originalName>::<mimeType>
             file_content = item_name[7:]
 
