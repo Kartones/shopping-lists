@@ -26,9 +26,11 @@
 
     <div class="container" style="margin-top: 12px">
         <h3>List: {{ unprefixed_name }}</h3>
+      {% if not multi_line_mode %}
       <div class="bg-light" style="padding: 6px">
         <a href="?">⬇️ Name</a> <a href="?order_by=state">⬇️ Priority</a>
       </div>
+      {% endif %}
       {% if new_item_located_at_top %}
       <div class="bg-light" class="container">
           {% if multi_line_mode %}
